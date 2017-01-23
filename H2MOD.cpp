@@ -754,10 +754,6 @@ void __stdcall OnPlayerScore(void* thisptr, unsigned short a2, int a3, int a4, i
 bool first_load = true;
 bool bcoop = false;
 
-// This whole hook is called every single time a map loads,
-// I've written a PHP script to compile the byte arrays due to the fact comparing unicode is a bitch.
-// Basically if we have a single player map we set bcoop = true so that the coop variables are setup.
-
 int __cdecl OnMapLoad(int a1)
 {
 	//OnMapLoad is called with 30888 when a game ends
@@ -769,12 +765,17 @@ int __cdecl OnMapLoad(int a1)
 		return pmap_initialize(a1);
 	}
 
+
 	b_Infection = false;
 	b_GunGame = false;
 	b_Halo2Final = false;
 	
-	wchar_t* variant_name = (wchar_t*)(((char*)h2mod->GetBase())+0x97777C);
+	wchar_t* variant_name;
 
+	if (!h2mod->Server)
+		variant_name = (wchar_t*)(((char*)h2mod->GetBase()) + 0x97777C);
+	else
+		variant_name = (wchar_t*)(((char*)h2mod->GetBase()) + 0x48D708);
 	TRACE_GAME("[h2mod] OnMapLoad variant name %ws", variant_name);
 
 	if (wcsstr(variant_name, L"zombies") > 0 || wcsstr(variant_name, L"Zombies") > 0 || wcsstr(variant_name, L"Infection") > 0 || wcsstr(variant_name, L"infection") > 0)
@@ -794,6 +795,8 @@ int __cdecl OnMapLoad(int a1)
 		TRACE_GAME("[h2mod] Halo2Final Turned on!");
 		b_Halo2Final = true;
 	}
+
+
 
 #pragma region COOP FIXES
 	bcoop = false;
@@ -815,50 +818,61 @@ int __cdecl OnMapLoad(int a1)
 						   0x5C, 0x00, 0x6D, 0x00, 0x61, 0x00, 0x69, 0x00, 0x6E, 0x00, 0x6D, 0x00, 0x65, 
 						   0x00, 0x6E, 0x00, 0x75, 0x00, 0x5C, 0x00, 0x6D, 0x00, 0x61, 0x00, 0x69, 0x00, 
 						   0x6E, 0x00, 0x6D, 0x00, 0x65, 0x00, 0x6E, 0x00, 0x75, 0x00 };
-
-	isLobby = true;
-	if (!memcmp(main_menu, (BYTE*)0x300017E0, 60))
+	if (!h2mod->Server)
 	{
-		DWORD game_globals = *(DWORD*)(((char*)h2mod->GetBase()) + 0x482D3C);
-		BYTE* garbage_collect = (BYTE*)(game_globals + 0xC);
-		*(garbage_collect) = 1;
-		MasterState = 5;
-
-		//Crashfix
-		*(int*)(h2mod->GetBase() + 0x464940) = 0;
-		*(int*)(h2mod->GetBase() + 0x46494C) = 0;
-		*(int*)(h2mod->GetBase() + 0x464958) = 0;
-		*(int*)(h2mod->GetBase() + 0x464964) = 0;
-	}
-	else 
-	{
-		MasterState = 4;
-	}
-
-	if (!memcmp(quarntine_zone, (BYTE*)0x300017E0, 86) && *(engine_mode) == 2 ) // check the map and if we're loading a multiplayer game (We don't want to fuck up normal campaign)
-	{
-		bcoop = true; // set coop mode to true because we're loading an SP map and we're trying to do so with the multiplayer engine mode set.
-	}
-
-	if (bcoop == true)
-	{
-		DWORD game_globals = *(DWORD*)(((char*)h2mod->GetBase()) + 0x482D3C);
-		BYTE* coop_mode = (BYTE*)(game_globals + 0x2a4);
-		BYTE* engine_mode = (BYTE*)(game_globals + 8);
-		BYTE* garbage_collect = (BYTE*)(game_globals + 0xC);
-		*(engine_mode) = 1;
-		bcoop = true;
-
-		if (first_load == true)
+		if (!memcmp(main_menu, (BYTE*)0x300017E0, 60))
 		{
-			*(garbage_collect) = 4; // This is utterly broken and causes weird issues when other players start joining.
+			isLobby = true;
+
+			DWORD game_globals = *(DWORD*)(((char*)h2mod->GetBase()) + 0x482D3C);
+			BYTE* garbage_collect = (BYTE*)(game_globals + 0xC);
+			*(garbage_collect) = 1;
+			MasterState = 5;
+
+			//Crashfix
+			*(int*)(h2mod->GetBase() + 0x464940) = 0;
+			*(int*)(h2mod->GetBase() + 0x46494C) = 0;
+			*(int*)(h2mod->GetBase() + 0x464958) = 0;
+			*(int*)(h2mod->GetBase() + 0x464964) = 0;
 		}
 		else
 		{
-			*(garbage_collect) = 1; // This has to be left at 5 for it to work, for some reason after the first time the host loads it seems to resolve some issues with weapons creation.
-			first_load = false;
+			MasterState = 4;
+		}
+	}
+	else 
+	{
+		isLobby = true;
+		MasterState = 4;
+	}
+
+	if (!h2mod->Server)
+	{
+		if (!memcmp(quarntine_zone, (BYTE*)0x300017E0, 86) && *(engine_mode) == 2) // check the map and if we're loading a multiplayer game (We don't want to fuck up normal campaign)
+		{
+			bcoop = true; // set coop mode to true because we're loading an SP map and we're trying to do so with the multiplayer engine mode set.
 		}
 
+		if (bcoop == true)
+		{
+			DWORD game_globals = *(DWORD*)(((char*)h2mod->GetBase()) + 0x482D3C);
+			BYTE* coop_mode = (BYTE*)(game_globals + 0x2a4);
+			BYTE* engine_mode = (BYTE*)(game_globals + 8);
+			BYTE* garbage_collect = (BYTE*)(game_globals + 0xC);
+			*(engine_mode) = 1;
+			bcoop = true;
+
+			if (first_load == true)
+			{
+				*(garbage_collect) = 4; // This is utterly broken and causes weird issues when other players start joining.
+			}
+			else
+			{
+				*(garbage_collect) = 1; // This has to be left at 5 for it to work, for some reason after the first time the host loads it seems to resolve some issues with weapons creation.
+				first_load = false;
+			}
+
+		}
 	}
 #pragma endregion
 
@@ -881,23 +895,27 @@ int __cdecl OnMapLoad(int a1)
 			int offset = 0x47CD54;
 			if (h2mod->Server)
 				offset = 0x4A29BC;
-
+		
 			DWORD AddressOffset = *(DWORD*)((char*)h2mod->GetBase() + offset);
 
 			*(float*)(AddressOffset + 0xA4EC88) = 2400.0f; // battle_rifle_bullet.proj Initial Velocity 
 			*(float*)(AddressOffset + 0xA4EC8C) = 2400.0f; //battle_rifle_bullet.proj Final Velocity
 			*(float*)(AddressOffset + 0xB7F914) = 5000.0f; //sniper_bullet.proj Initial Velocity
 			*(float*)(AddressOffset + 0xB7F918) = 5000.0f; //sniper_bullet.proj Final Velocity
-		#pragma endregion
 
-		#pragma region Crosshair Offset
+#pragma endregion
+
+#pragma region Crosshair Offset
 			*(float*)(AddressOffset + 0x3DC00) = crosshair_offset;
-		#pragma endregion
+#pragma endregion
 
-		#pragma region Halo2Final
+			
+		
+#pragma region Halo2Final
 			if (b_Halo2Final && !h2mod->Server)
 				h2f->Initialize(isHost);
-		#pragma endregion
+#pragma endregion
+
 	}
 
 	return ret;
@@ -1121,6 +1139,16 @@ void H2MOD::ApplyHooks() {
 			dedi_command_hook_method = (dedi_command_hook)DetourFunc((BYTE*)this->GetBase() + 0x1CCFC, (BYTE*)dediCommandHook, 7);
 			VirtualProtect(dedi_command_hook_method, 4, PAGE_EXECUTE_READWRITE, &dwBack);
 		}
+
+		pspawn_player = (spawn_player)DetourFunc((BYTE*)this->GetBase() + 0x5DE4A, (BYTE*)OnPlayerSpawn, 6);
+		VirtualProtect(pspawn_player, 4, PAGE_EXECUTE_READWRITE, &dwBack);
+		pmap_initialize = (map_intialize)DetourFunc((BYTE*)this->GetBase() + 0x4E43C, (BYTE*)OnMapLoad, 10);
+		VirtualProtect(pmap_initialize, 4, PAGE_EXECUTE_READWRITE, &dwBack);
+
+		pupdate_player_score = (update_player_score)DetourClassFunc((BYTE*)this->GetBase() + 0x8C84C, (BYTE*)OnPlayerScore, 12);
+		VirtualProtect(pupdate_player_score, 4, PAGE_EXECUTE_READWRITE, &dwBack);
+		pplayer_death = (player_death)DetourFunc((BYTE*)this->GetBase() + 0x152ED4, (BYTE*)OnPlayerDeath, 9);
+		VirtualProtect(pplayer_death, 4, PAGE_EXECUTE_READWRITE, &dwBack);
 	}
 }
 
@@ -1469,31 +1497,6 @@ DWORD WINAPI NetworkThread(LPVOID lParam)
 	return 0;
 }
 
-DWORD WINAPI Thread1( LPVOID lParam )
-{
-	char *binarydata = new char[0xAA8 + 1];
-	FILE* binarydump = fopen("binarydump.bin", "r");
-	fread(binarydata, 0xAA8, 1, binarydump);
-
-	while (1)
-	{	
-
-		
-		DWORD Base = (DWORD)GetModuleHandleA("halo2.exe");
-	
-		DWORD *ServerList = (DWORD*)(*(DWORD*)(Base + 0x96743C));
-		if (ServerList > 0)
-		{
-			memcpy(ServerList, binarydata, 0xAA8);
-			memcpy(ServerList + 0xAA8, binarydata, 0xAA8);
-		}
-		
-		//fread((ServerList + 0xAA8), 0xAA8, 1, BinaryDump);
-		//TRACE("ServerList: %08X\n", ServerList);
-		//fwrite(ServerList, 0xAA8, 1, BinaryDump);	
-	}
-}
-
 void H2MOD::Initialize()
 {
 	
@@ -1520,7 +1523,7 @@ void H2MOD::Initialize()
 	TRACE_GAME("H2MOD - Initialized v0.1a");
 	TRACE_GAME("H2MOD - BASE ADDR %08X", this->Base);
 
-	//Network::Initialize();
+	Network::Initialize();
 	h2mod->ApplyHooks();
 }
 

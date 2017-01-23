@@ -74,8 +74,65 @@
 //
 #define XNET_STARTUP_DISABLE_PEER_ENCRYPTION        0x08
 
+#define XUSER_PROPERTY_GAMETYPE_NAME		0x40008228
+#define XUSER_PROPERTY_GAMETYPE_NAME_2		0x4000822B
+#define XUSER_PROPERTY_SERVER_NAME			0x40008230
+#define XUSER_PROPERTY_SERVER_DESC			0x40008225
+#define XUSER_PROPERTY_MAP_ID				0x10008207
+#define XUSER_PROPERTY_MAP_ID_2				0x1000820A
+#define XUSER_PROPERTY_MAP_NAME				0x40008226
+#define XUSER_PROPERTY_MAP_NAME_2			0x40008229
+#define XUSER_PROPERTY_GAMETYPE_ID			0x10008209
+#define XUSER_PROPERTY_GAME_STATUS			0x10008211
+#define XUSER_PROPERTY_VERSION_1			0x1000820E
+#define XUSER_PROPERTY_VERSION_2			0x1000820F
+#define XUSER_PROPERTY_UNKNOWN_INT64		0x2000821B
+#define XUSER_PROPERTY_MAP_HASH_1			0x40008227
+#define XUSER_PROPERTY_MAP_HASH_2			0x4000822A
+#define XUSER_PROPERTY_UNKNOWN_INT32_1		0x10008208
+#define XUSER_PROPERTY_UNKNOWN_INT32_2		0x1000820B
+#define XUSER_PROPERTY_UNKNOWN_INT32_3		0x1000820C
+#define XUSER_PROPERTY_UNKNOWN_INT32_4		0x1000820D
+#define XUSER_PROPERTY_PARTY_PRIVACY		0x10008210
+#define XUSER_PROPERTY_UNKNOWN_INT32_6		0x10008212
+#define XUSER_PROPERTY_UNKNOWN_INT32_7		0x10008213
+#define XUSER_PROPERTY_UNKNOWN_UNICODE_1	0x4000822C
 
+#define XLOCATOR_DEDICATEDSERVER_PROPERTY_START     0x200
+// These properties are used for search only.
+// The search result header should already contains the information, and the query should not request these properties again.
+#define X_PROPERTY_DEDICATEDSERVER_IDENTITY             XPROPERTYID(1, XUSER_DATA_TYPE_INT64,  XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_ServerIdentity)   // server id. supports '=' operator onl$
+#define X_PROPERTY_DEDICATEDSERVER_TYPE                 XPROPERTYID(1, XUSER_DATA_TYPE_INT32,  XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_ServerType)
+#define X_PROPERTY_DEDICATEDSERVER_MAX_PUBLIC_SLOTS     XPROPERTYID(1, XUSER_DATA_TYPE_INT32,  XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_MaxPublicSlots)
+#define X_PROPERTY_DEDICATEDSERVER_MAX_PRIVATE_SLOTS    XPROPERTYID(1, XUSER_DATA_TYPE_INT32,  XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_MaxPrivateSlots)
+#define X_PROPERTY_DEDICATEDSERVER_AVAILABLE_PUBLIC_SLOTS   XPROPERTYID(1, XUSER_DATA_TYPE_INT32,  XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_AvailablePublicSlots)
+#define X_PROPERTY_DEDICATEDSERVER_AVAILABLE_PRIVATE_SLOTS  XPROPERTYID(1, XUSER_DATA_TYPE_INT32,  XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_AvailablePrivateSlots)
+#define X_PROPERTY_DEDICATEDSERVER_FILLED_PUBLIC_SLOTS      XPROPERTYID(1, XUSER_DATA_TYPE_INT32,   XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_FilledPublicSlots)
+#define X_PROPERTY_DEDICATEDSERVER_FILLED_PRIVATE_SLOTS     XPROPERTYID(1, XUSER_DATA_TYPE_INT32,   XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_FilledPrivateSlots)
+
+
+// the following properties only support XTS_FILTER_COMPARE_OPERATOR_Equals operator
+#define X_PROPERTY_DEDICATEDSERVER_OWNER_XUID           XPROPERTYID(1, XUSER_DATA_TYPE_INT64,   XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_OwnerXuid)
+#define X_PROPERTY_DEDICATEDSERVER_OWNER_GAMERTAG       XPROPERTYID(1, XUSER_DATA_TYPE_UNICODE,   XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_OwnerGamerTag)
+#define X_PROPERTY_DEDICATEDSERVER_REGIONID             XPROPERTYID(1, XUSER_DATA_TYPE_INT32,   XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_RegionID)
+#define X_PROPERTY_DEDICATEDSERVER_LANGUAGEID           XPROPERTYID(1, XUSER_DATA_TYPE_INT32,   XLOCATOR_DEDICATEDSERVER_PROPERTY_START + XTS_SEARCH_FIELD_LanguageID)
+
+// Predefined dedicated server types
+#define XLOCATOR_SERVERTYPE_PUBLIC          0   // dedicated server is for all players.
+#define XLOCATOR_SERVERTYPE_GOLD_ONLY       1   // dedicated server is for Gold players only.
+#define XLOCATOR_SERVERTYPE_PEER_HOSTED     2   // dedicated server is a peer-hosted game server.
+#define XLOCATOR_SERVERTYPE_PEER_HOSTED_GOLD_ONLY   3   // dedicated server is a peer-hosted game server (gold only).
+#define XLOCATOR_SERVICESTATUS_PROPERTY_START     0x100
 
+#define XUSER_DATA_TYPE_CONTEXT     ((BYTE)0)
+#define XUSER_DATA_TYPE_INT32       ((BYTE)1)
+#define XUSER_DATA_TYPE_INT64       ((BYTE)2)
+#define XUSER_DATA_TYPE_DOUBLE      ((BYTE)3)
+#define XUSER_DATA_TYPE_UNICODE     ((BYTE)4)
+#define XUSER_DATA_TYPE_FLOAT       ((BYTE)5)
+#define XUSER_DATA_TYPE_BINARY      ((BYTE)6)
+#define XUSER_DATA_TYPE_DATETIME    ((BYTE)7)
+#define XUSER_DATA_TYPE_NULL        ((BYTE)0xFF)
 // Creation Flags
 #define XSESSION_CREATE_USES_MASK                       0x0000003F
 
@@ -100,132 +157,132 @@
 typedef struct
 {
 
-    //
-    // Must be set to sizeof(XNetStartupParams).  There is no default.
-    //
-    BYTE        cfgSizeOfStruct;
+	//
+	// Must be set to sizeof(XNetStartupParams).  There is no default.
+	//
+	BYTE        cfgSizeOfStruct;
 
-    //
-    // One or more of the XNET_STARTUP_xxx flags OR'd together.
-    //
-    // The default is 0 (no flags specified).
-    BYTE        cfgFlags;
+	//
+	// One or more of the XNET_STARTUP_xxx flags OR'd together.
+	//
+	// The default is 0 (no flags specified).
+	BYTE        cfgFlags;
 
-    //
-    // The maximum number of SOCK_DGRAM (UDP or VDP) sockets that can be
-    // opened at once.
-    //
-    // The default is 8 sockets.
-    //
-    BYTE        cfgSockMaxDgramSockets;
+	//
+	// The maximum number of SOCK_DGRAM (UDP or VDP) sockets that can be
+	// opened at once.
+	//
+	// The default is 8 sockets.
+	//
+	BYTE        cfgSockMaxDgramSockets;
 
-    //
-    // The maximum number of SOCK_STREAM (TCP) sockets that can be opened at
-    // once, including those sockets created as a result of incoming connection
-    // requests.  Remember that a TCP socket may not be closed immediately
-    // after 'closesocket' is called, depending on the linger options in place
-    // (by default a TCP socket will linger).
-    //
-    // The default is 32 sockets.
-    //
-    BYTE        cfgSockMaxStreamSockets;
+	//
+	// The maximum number of SOCK_STREAM (TCP) sockets that can be opened at
+	// once, including those sockets created as a result of incoming connection
+	// requests.  Remember that a TCP socket may not be closed immediately
+	// after 'closesocket' is called, depending on the linger options in place
+	// (by default a TCP socket will linger).
+	//
+	// The default is 32 sockets.
+	//
+	BYTE        cfgSockMaxStreamSockets;
 
-    //
-    // The default receive buffer size for a socket, in units of K (1024 bytes).
-    //
-    // The default is 16 units (16K).
-    //
-    BYTE        cfgSockDefaultRecvBufsizeInK;
+	//
+	// The default receive buffer size for a socket, in units of K (1024 bytes).
+	//
+	// The default is 16 units (16K).
+	//
+	BYTE        cfgSockDefaultRecvBufsizeInK;
 
-    //
-    // The default send buffer size for a socket, in units of K (1024 bytes).
-    //
-    // The default is 16 units (16K).
-    //
-    BYTE        cfgSockDefaultSendBufsizeInK;
+	//
+	// The default send buffer size for a socket, in units of K (1024 bytes).
+	//
+	// The default is 16 units (16K).
+	//
+	BYTE        cfgSockDefaultSendBufsizeInK;
 
-    //
-    // The maximum number of XNKID / XNKEY pairs that can be registered at the
-    // same time by calling XNetRegisterKey.
-    //
-    // The default is 8 key pair registrations.
-    //
-    BYTE        cfgKeyRegMax;
+	//
+	// The maximum number of XNKID / XNKEY pairs that can be registered at the
+	// same time by calling XNetRegisterKey.
+	//
+	// The default is 8 key pair registrations.
+	//
+	BYTE        cfgKeyRegMax;
 
-    //
-    // The maximum number of security associations that can be registered at
-    // the same time.  Security associations are created for each unique
-    // XNADDR / XNKID pair passed to XNetXnAddrToInAddr.  Security associations
-    // are also implicitly created for each secure host that establishes an
-    // incoming connection with this host on a given registered XNKID.  Note
-    // that there will only be one security association between a pair of hosts
-    // on a given XNKID no matter how many sockets are actively communicating
-    // on that secure connection.
-    //
-    // The default is 32 security associations.
-    //
-    BYTE        cfgSecRegMax;
+	//
+	// The maximum number of security associations that can be registered at
+	// the same time.  Security associations are created for each unique
+	// XNADDR / XNKID pair passed to XNetXnAddrToInAddr.  Security associations
+	// are also implicitly created for each secure host that establishes an
+	// incoming connection with this host on a given registered XNKID.  Note
+	// that there will only be one security association between a pair of hosts
+	// on a given XNKID no matter how many sockets are actively communicating
+	// on that secure connection.
+	//
+	// The default is 32 security associations.
+	//
+	BYTE        cfgSecRegMax;
 
-    //
-    // The maximum amount of QoS data, in units of DWORD (4 bytes), that can be
-    // supplied to a call to XNetQosListen or returned in the result set of a
-    // call to XNetQosLookup.
-    //
-    // The default is 64 (256 bytes).
-    //
-    BYTE        cfgQosDataLimitDiv4;
+	//
+	// The maximum amount of QoS data, in units of DWORD (4 bytes), that can be
+	// supplied to a call to XNetQosListen or returned in the result set of a
+	// call to XNetQosLookup.
+	//
+	// The default is 64 (256 bytes).
+	//
+	BYTE        cfgQosDataLimitDiv4;
 
-    //
-    // The amount of time to wait for a response after sending a QoS packet
-    // before sending it again (or giving up).  This should be set to the same
-    // value on clients (XNetQosLookup callers) and servers (XNetQosListen
-    // callers).
-    //
-    // The default is 2 seconds.
-    //
-    BYTE        cfgQosProbeTimeoutInSeconds;
+	//
+	// The amount of time to wait for a response after sending a QoS packet
+	// before sending it again (or giving up).  This should be set to the same
+	// value on clients (XNetQosLookup callers) and servers (XNetQosListen
+	// callers).
+	//
+	// The default is 2 seconds.
+	//
+	BYTE        cfgQosProbeTimeoutInSeconds;
 
-    //
-    // The maximum number of times to retry a given QoS packet when no response
-    // is received.  This should be set to the same value on clients
-    // (XNetQosLookup callers) and servers (XNetQosListen callers).
-    //
-    // The default is 3 retries.
-    //
-    BYTE        cfgQosProbeRetries;
+	//
+	// The maximum number of times to retry a given QoS packet when no response
+	// is received.  This should be set to the same value on clients
+	// (XNetQosLookup callers) and servers (XNetQosListen callers).
+	//
+	// The default is 3 retries.
+	//
+	BYTE        cfgQosProbeRetries;
 
-    //
-    // The maximum number of simultaneous QoS lookup responses that a QoS
-    // listener supports.  Note that the bandwidth throttling parameter passed
-    // to XNetQosListen may impact the number of responses queued, and thus
-    // affects how quickly this limit is reached.
-    //
-    // The default is 8 responses.
-    //
-    BYTE        cfgQosSrvMaxSimultaneousResponses;
+	//
+	// The maximum number of simultaneous QoS lookup responses that a QoS
+	// listener supports.  Note that the bandwidth throttling parameter passed
+	// to XNetQosListen may impact the number of responses queued, and thus
+	// affects how quickly this limit is reached.
+	//
+	// The default is 8 responses.
+	//
+	BYTE        cfgQosSrvMaxSimultaneousResponses;
 
-    //
-    // The maximum amount of time for QoS listeners to wait for the second
-    // packet in a packet pair.
-    //
-    // The default is 2 seconds.
-    //
-    BYTE        cfgQosPairWaitTimeInSeconds;
+	//
+	// The maximum amount of time for QoS listeners to wait for the second
+	// packet in a packet pair.
+	//
+	// The default is 2 seconds.
+	//
+	BYTE        cfgQosPairWaitTimeInSeconds;
 
 } XNetStartupParams;
 
 typedef struct
 {
-    IN_ADDR     ina;                            // IP address (zero if not static/DHCP)
-    IN_ADDR     inaOnline;                      // Online IP address (zero if not online)
-    WORD        wPortOnline;                    // Online port
-    BYTE        abEnet[6];                      // Ethernet MAC address
-    BYTE        abOnline[20];                   // Online identification
+	IN_ADDR     ina;                            // IP address (zero if not static/DHCP)
+	IN_ADDR     inaOnline;                      // Online IP address (zero if not online)
+	WORD        wPortOnline;                    // Online port
+	BYTE        abEnet[6];                      // Ethernet MAC address
+	BYTE        abOnline[20];                   // Online identification
 } XNADDR;
 
 typedef struct
 {
-    BYTE        ab[8];                          // xbox to xbox key identifier
+	BYTE        ab[8];                          // xbox to xbox key identifier
 } XNKID;
 
 typedef XNADDR TSADDR;
@@ -248,14 +305,14 @@ typedef XNADDR TSADDR;
 
 typedef struct
 {
-    BYTE        ab[16];                         // xbox to xbox key exchange key
+	BYTE        ab[16];                         // xbox to xbox key exchange key
 } XNKEY;
 
 typedef struct
 {
-    INT         iStatus;                        // WSAEINPROGRESS if pending; 0 if success; error if failed
-    UINT        cina;                           // Count of IP addresses for the given host
-    IN_ADDR     aina[8];                        // Vector of IP addresses for the given host
+	INT         iStatus;                        // WSAEINPROGRESS if pending; 0 if success; error if failed
+	UINT        cina;                           // Count of IP addresses for the given host
+	IN_ADDR     aina[8];                        // Vector of IP addresses for the given host
 } XNDNS;
 
 #define XNET_XNQOSINFO_COMPLETE         0x01    // Qos has finished processing this entry
@@ -267,34 +324,34 @@ typedef struct
 
 typedef struct
 {
-    BYTE        bFlags;                         // See XNET_XNQOSINFO_*
-    BYTE        bReserved;                      // Reserved
-    WORD        cProbesXmit;                    // Count of Qos probes transmitted
-    WORD        cProbesRecv;                    // Count of Qos probes successfully received
-    WORD        cbData;                         // Size of Qos data supplied by target (may be zero)
-    BYTE *      pbData;                         // Qos data supplied by target (may be NULL)
-    WORD        wRttMinInMsecs;                 // Minimum round-trip time in milliseconds
-    WORD        wRttMedInMsecs;                 // Median round-trip time in milliseconds
-    DWORD       dwUpBitsPerSec;                 // Upstream bandwidth in bits per second
-    DWORD       dwDnBitsPerSec;                 // Downstream bandwidth in bits per second
+	BYTE        bFlags;                         // See XNET_XNQOSINFO_*
+	BYTE        bReserved;                      // Reserved
+	WORD        cProbesXmit;                    // Count of Qos probes transmitted
+	WORD        cProbesRecv;                    // Count of Qos probes successfully received
+	WORD        cbData;                         // Size of Qos data supplied by target (may be zero)
+	BYTE *      pbData;                         // Qos data supplied by target (may be NULL)
+	WORD        wRttMinInMsecs;                 // Minimum round-trip time in milliseconds
+	WORD        wRttMedInMsecs;                 // Median round-trip time in milliseconds
+	DWORD       dwUpBitsPerSec;                 // Upstream bandwidth in bits per second
+	DWORD       dwDnBitsPerSec;                 // Downstream bandwidth in bits per second
 } XNQOSINFO;
 
 typedef struct
 {
-    UINT        cxnqos;                         // Count of items in axnqosinfo[] array
-    UINT        cxnqosPending;                  // Count of items still pending
-    XNQOSINFO   axnqosinfo[1];                  // Vector of Qos results
+	UINT        cxnqos;                         // Count of items in axnqosinfo[] array
+	UINT        cxnqosPending;                  // Count of items still pending
+	XNQOSINFO   axnqosinfo[1];                  // Vector of Qos results
 } XNQOS;
 
 typedef struct
 {
-    DWORD       dwSizeOfStruct;                 // Structure size, must be set prior to calling XNetQosGetListenStats
-    DWORD       dwNumDataRequestsReceived;      // Number of client data request probes received
-    DWORD       dwNumProbesReceived;            // Number of client probe requests received
-    DWORD       dwNumSlotsFullDiscards;         // Number of client requests discarded because all slots are full
-    DWORD       dwNumDataRepliesSent;           // Number of data replies sent
-    DWORD       dwNumDataReplyBytesSent;        // Number of data reply bytes sent
-    DWORD       dwNumProbeRepliesSent;          // Number of probe replies sent
+	DWORD       dwSizeOfStruct;                 // Structure size, must be set prior to calling XNetQosGetListenStats
+	DWORD       dwNumDataRequestsReceived;      // Number of client data request probes received
+	DWORD       dwNumProbesReceived;            // Number of client probe requests received
+	DWORD       dwNumSlotsFullDiscards;         // Number of client requests discarded because all slots are full
+	DWORD       dwNumDataRepliesSent;           // Number of data replies sent
+	DWORD       dwNumDataReplyBytesSent;        // Number of data reply bytes sent
+	DWORD       dwNumProbeRepliesSent;          // Number of probe replies sent
 } XNQOSLISTENSTATS;
 
 
@@ -350,17 +407,17 @@ INT   WINAPI XNetDnsRelease(XNDNS * pxndns);
 #define XNET_QOS_SERVICE_LOOKUP_RESERVED    0x00000000 // No flags defined yet for XNetQosServiceLookup
 
 INT   WINAPI XNetQosListen(const XNKID * pxnkid,
-                           const BYTE * pb,
-                           UINT cb,
-                           DWORD dwBitsPerSec, DWORD dwFlags);
+	const BYTE * pb,
+	UINT cb,
+	DWORD dwBitsPerSec, DWORD dwFlags);
 INT   WINAPI XNetQosLookup(UINT cxna,
-                           const XNADDR * apxna[],
-                           const XNKID * apxnkid[],
-                           const XNKEY * apxnkey[],
-                           UINT cina,
-                           const IN_ADDR aina[],
-                           const DWORD adwServiceId[],
-                           UINT cProbes, DWORD dwBitsPerSec, DWORD dwFlags, WSAEVENT hEvent, XNQOS ** ppxnqos);
+	const XNADDR * apxna[],
+	const XNKID * apxnkid[],
+	const XNKEY * apxnkey[],
+	UINT cina,
+	const IN_ADDR aina[],
+	const DWORD adwServiceId[],
+	UINT cProbes, DWORD dwBitsPerSec, DWORD dwFlags, WSAEVENT hEvent, XNQOS ** ppxnqos);
 INT   WINAPI XNetQosServiceLookup(DWORD dwFlags, WSAEVENT hEvent, XNQOS ** ppxnqos);
 INT   WINAPI XNetQosRelease(XNQOS * pxnqos);
 INT   WINAPI XNetQosGetListenStats(const XNKID * pxnkid, XNQOSLISTENSTATS * pQosListenStats);
@@ -652,18 +709,18 @@ typedef struct _XUSER_SIGNIN_INFO
 	DWORD                dwGuestNumber;
 	DWORD                dwSponsorUserIndex;
 	CHAR                 szUserName[XUSER_NAME_SIZE];
-} XUSER_SIGNIN_INFO, * PXUSER_SIGNIN_INFO;
+} XUSER_SIGNIN_INFO, *PXUSER_SIGNIN_INFO;
 
 // Xbox-specific Overlapped
 
 typedef struct _XOVERLAPPED             XOVERLAPPED, *PXOVERLAPPED;
 
 typedef
-	VOID
-	(WINAPI *PXOVERLAPPED_COMPLETION_ROUTINE)(
-	   DWORD dwErrorCode,
-	   DWORD dwNumberOfBytesTransfered,
-		 DWORD pOverlapped
+VOID
+(WINAPI *PXOVERLAPPED_COMPLETION_ROUTINE)(
+	DWORD dwErrorCode,
+	DWORD dwNumberOfBytesTransfered,
+	DWORD pOverlapped
 	);
 
 
@@ -685,7 +742,7 @@ typedef enum _XUSER_PROFILE_SOURCE
 	XSOURCE_PERMISSION_DENIED
 } XUSER_PROFILE_SOURCE;
 
-typedef struct  {
+typedef struct {
 	BYTE type;
 
 	union {
@@ -778,73 +835,73 @@ typedef struct _XUSER_ACHIEVEMENT {
 
 
 typedef struct {
-    XNKID sessionID;
-    XNADDR hostAddress;
-    XNKEY keyExchangeKey;
+	XNKID sessionID;
+	XNADDR hostAddress;
+	XNKEY keyExchangeKey;
 } XSESSION_INFO, *PXSESSION_INFO;
- 
+
 
 
 typedef enum _XSESSION_STATE
 {
-    XSESSION_STATE_LOBBY = 0,
-    XSESSION_STATE_REGISTRATION,
-    XSESSION_STATE_INGAME,
-    XSESSION_STATE_REPORTING,
-    XSESSION_STATE_DELETED
+	XSESSION_STATE_LOBBY = 0,
+	XSESSION_STATE_REGISTRATION,
+	XSESSION_STATE_INGAME,
+	XSESSION_STATE_REPORTING,
+	XSESSION_STATE_DELETED
 } XSESSION_STATE;
- 
+
 
 typedef struct {
-    XUID xuidOnline;
-    DWORD dwUserIndex;
-    DWORD dwFlags;
+	XUID xuidOnline;
+	DWORD dwUserIndex;
+	DWORD dwFlags;
 } XSESSION_MEMBER;
 
 
 typedef struct {
-    DWORD dwUserIndexHost;
-    DWORD dwGameType;
-    DWORD dwGameMode;
-    DWORD dwFlags;
-    DWORD dwMaxPublicSlots;
-    DWORD dwMaxPrivateSlots;
-    DWORD dwAvailablePublicSlots;
-    DWORD dwAvailablePrivateSlots;
-    DWORD dwActualMemberCount;
-    DWORD dwReturnedMemberCount;
-    XSESSION_STATE eState;
-    ULONGLONG qwNonce;
-    XSESSION_INFO sessionInfo;
-    XNKID xnkidArbitration;
-    XSESSION_MEMBER *pSessionMembers;
+	DWORD dwUserIndexHost;
+	DWORD dwGameType;
+	DWORD dwGameMode;
+	DWORD dwFlags;
+	DWORD dwMaxPublicSlots;
+	DWORD dwMaxPrivateSlots;
+	DWORD dwAvailablePublicSlots;
+	DWORD dwAvailablePrivateSlots;
+	DWORD dwActualMemberCount;
+	DWORD dwReturnedMemberCount;
+	XSESSION_STATE eState;
+	ULONGLONG qwNonce;
+	XSESSION_INFO sessionInfo;
+	XNKID xnkidArbitration;
+	XSESSION_MEMBER *pSessionMembers;
 } XSESSION_LOCAL_DETAILS, *PXSESSION_LOCAL_DETAILS;
-  
 
-typedef enum 
+
+typedef enum
 {
-    XONLINE_NAT_OPEN = 1,
-    XONLINE_NAT_MODERATE,
-    XONLINE_NAT_STRICT
+	XONLINE_NAT_OPEN = 1,
+	XONLINE_NAT_MODERATE,
+	XONLINE_NAT_STRICT
 } XONLINE_NAT_TYPE;
- 
+
 
 
 /*
 typedef struct _XHV_INIT_PARAMS {
-    DWORD dwMaxRemoteTalkers;
-    DWORD dwMaxLocalTalkers;
-    PXHV_PROCESSING_MODE localTalkerEnabledModes;
-    DWORD dwNumLocalTalkerEnabledModes;
-    PXHV_PROCESSING_MODE remoteTalkerEnabledModes;
-    DWORD dwNumRemoteTalkerEnabledModes;
-    BOOL bCustomVADProvided;
-    BOOL bRelaxPrivileges;
-    PFNMICRAWDATAREADY pfnMicrophoneRawDataReady;
-    XAUDIO2_EFFECT_CHAIN **ppfxDefaultRemoteTalkerFX;
-    XAUDIO2_EFFECT_CHAIN **ppfxDefaultTalkerPairFX;
-    XAUDIO2_EFFECT_CHAIN *pfxOutputFX;
-    IXAudio2 *pXAudio2;
+DWORD dwMaxRemoteTalkers;
+DWORD dwMaxLocalTalkers;
+PXHV_PROCESSING_MODE localTalkerEnabledModes;
+DWORD dwNumLocalTalkerEnabledModes;
+PXHV_PROCESSING_MODE remoteTalkerEnabledModes;
+DWORD dwNumRemoteTalkerEnabledModes;
+BOOL bCustomVADProvided;
+BOOL bRelaxPrivileges;
+PFNMICRAWDATAREADY pfnMicrophoneRawDataReady;
+XAUDIO2_EFFECT_CHAIN **ppfxDefaultRemoteTalkerFX;
+XAUDIO2_EFFECT_CHAIN **ppfxDefaultTalkerPairFX;
+XAUDIO2_EFFECT_CHAIN *pfxOutputFX;
+IXAudio2 *pXAudio2;
 } XHV_INIT_PARAMS, *PXHV_INIT_PARAMS;
 */
 
@@ -914,38 +971,38 @@ typedef struct _XSESSION_REGISTRATION_RESULTS
 
 typedef enum _XPRIVILEGE_TYPE
 {
-    XPRIVILEGE_MULTIPLAYER_SESSIONS = 254,
-    XPRIVILEGE_COMMUNICATIONS = 252,
-    XPRIVILEGE_COMMUNICATIONS_FRIENDS_ONLY = 251,
-    XPRIVILEGE_PROFILE_VIEWING = 249,
-    XPRIVILEGE_PROFILE_VIEWING_FRIENDS_ONLY = 248,
-    XPRIVILEGE_USER_CREATED_CONTENT = 247,
-    XPRIVILEGE_USER_CREATED_CONTENT_FRIENDS_ONLY = 246,
-    XPRIVILEGE_PURCHASE_CONTENT = 245,
-    XPRIVILEGE_PRESENCE = 244,
-    XPRIVILEGE_PRESENCE_FRIENDS_ONLY = 243,
-    XPRIVILEGE_SHARE_CONTENT_OUTSIDE_LIVE = 211,
-    XPRIVILEGE_TRADE_CONTENT = 238,
-    XPRIVILEGE_VIDEO_COMMUNICATIONS = 235,
-    XPRIVILEGE_VIDEO_COMMUNICATIONS_FRIENDS_ONLY = 234,
-    XPRIVILEGE_CONTENT_AUTHOR = 222
+	XPRIVILEGE_MULTIPLAYER_SESSIONS = 254,
+	XPRIVILEGE_COMMUNICATIONS = 252,
+	XPRIVILEGE_COMMUNICATIONS_FRIENDS_ONLY = 251,
+	XPRIVILEGE_PROFILE_VIEWING = 249,
+	XPRIVILEGE_PROFILE_VIEWING_FRIENDS_ONLY = 248,
+	XPRIVILEGE_USER_CREATED_CONTENT = 247,
+	XPRIVILEGE_USER_CREATED_CONTENT_FRIENDS_ONLY = 246,
+	XPRIVILEGE_PURCHASE_CONTENT = 245,
+	XPRIVILEGE_PRESENCE = 244,
+	XPRIVILEGE_PRESENCE_FRIENDS_ONLY = 243,
+	XPRIVILEGE_SHARE_CONTENT_OUTSIDE_LIVE = 211,
+	XPRIVILEGE_TRADE_CONTENT = 238,
+	XPRIVILEGE_VIDEO_COMMUNICATIONS = 235,
+	XPRIVILEGE_VIDEO_COMMUNICATIONS_FRIENDS_ONLY = 234,
+	XPRIVILEGE_CONTENT_AUTHOR = 222
 } XPRIVILEGE_TYPE;
 
 
 
-typedef enum 
+typedef enum
 {
-    XMARKETPLACE_OFFERING_TYPE_CONTENT = 0x00000002,
-    XMARKETPLACE_OFFERING_TYPE_GAME_DEMO = 0x00000020,
-    XMARKETPLACE_OFFERING_TYPE_GAME_TRAILER = 0x00000040,
-    XMARKETPLACE_OFFERING_TYPE_THEME = 0x00000080,
-    XMARKETPLACE_OFFERING_TYPE_TILE = 0x00000800,
-    XMARKETPLACE_OFFERING_TYPE_ARCADE = 0x00002000,
-    XMARKETPLACE_OFFERING_TYPE_VIDEO = 0x00004000,
-    XMARKETPLACE_OFFERING_TYPE_CONSUMABLE = 0x00010000,
-    XMARKETPLACE_OFFERING_TYPE_AVATARITEM = 0x00100000
+	XMARKETPLACE_OFFERING_TYPE_CONTENT = 0x00000002,
+	XMARKETPLACE_OFFERING_TYPE_GAME_DEMO = 0x00000020,
+	XMARKETPLACE_OFFERING_TYPE_GAME_TRAILER = 0x00000040,
+	XMARKETPLACE_OFFERING_TYPE_THEME = 0x00000080,
+	XMARKETPLACE_OFFERING_TYPE_TILE = 0x00000800,
+	XMARKETPLACE_OFFERING_TYPE_ARCADE = 0x00002000,
+	XMARKETPLACE_OFFERING_TYPE_VIDEO = 0x00004000,
+	XMARKETPLACE_OFFERING_TYPE_CONSUMABLE = 0x00010000,
+	XMARKETPLACE_OFFERING_TYPE_AVATARITEM = 0x00100000
 } XMARKETPLACE_OFFERING_TYPE;
- 
+
 
 
 // fixme
@@ -958,53 +1015,53 @@ public:
 	// 2F0 bytes = actual size
 	// - note: check all INT return values - may not be true
 
-	INT Dummy1( VOID *pThis );	// 00
-	INT Dummy2( VOID *pThis );	// 04
-	HRESULT Dummy3( VOID *pThis, int a );	// 08
+	INT Dummy1(VOID *pThis);	// 00
+	INT Dummy2(VOID *pThis);	// 04
+	HRESULT Dummy3(VOID *pThis, int a);	// 08
 
-	HRESULT StartLocalProcessingModes( VOID *pThis, DWORD dwUserIndex, /* CONST PXHV_PROCESSING_MODE*/ VOID *processingModes, DWORD dwNumProcessingModes );
-	HRESULT StopLocalProcessingModes( VOID *pThis, DWORD dwUserIndex, /*CONST PXHV_PROCESSING_MODE*/ VOID *processingModes, DWORD dwNumProcessingModes );
+	HRESULT StartLocalProcessingModes(VOID *pThis, DWORD dwUserIndex, /* CONST PXHV_PROCESSING_MODE*/ VOID *processingModes, DWORD dwNumProcessingModes);
+	HRESULT StopLocalProcessingModes(VOID *pThis, DWORD dwUserIndex, /*CONST PXHV_PROCESSING_MODE*/ VOID *processingModes, DWORD dwNumProcessingModes);
 
-	HRESULT StartRemoteProcessingModes( VOID *pThis, int a1, int a2, int a3, int a4 );
-	HRESULT Dummy7( VOID *pThis, int a1, int a2, int a3, int a4 );	// 18
+	HRESULT StartRemoteProcessingModes(VOID *pThis, int a1, int a2, int a3, int a4);
+	HRESULT Dummy7(VOID *pThis, int a1, int a2, int a3, int a4);	// 18
 
-	HRESULT Dummy8( VOID *pThis, int a1 );	// 1C
+	HRESULT Dummy8(VOID *pThis, int a1);	// 1C
 
-	HRESULT RegisterLocalTalker( VOID *pThis, DWORD dwUserIndex );
-	HRESULT UnregisterLocalTalker( VOID *pThis, DWORD dwUserIndex );
+	HRESULT RegisterLocalTalker(VOID *pThis, DWORD dwUserIndex);
+	HRESULT UnregisterLocalTalker(VOID *pThis, DWORD dwUserIndex);
 
-	HRESULT Dummy11( VOID *pThis, int a1, int a2, int a3, int a4, int a5 );	// 28
-	HRESULT UnregisterRemoteTalker( VOID *pThis, int a1, int a2 );
+	HRESULT Dummy11(VOID *pThis, int a1, int a2, int a3, int a4, int a5);	// 28
+	HRESULT UnregisterRemoteTalker(VOID *pThis, int a1, int a2);
 
-	HRESULT Dummy13( VOID *pThis, int a1, int a2 );	// 30
-	INT Dummy14( VOID *pThis, int a1 );	// 34
-	INT Dummy15( VOID *pThis, int a1 );	// 38
-	HRESULT Dummy16( VOID *pThis, int a1, int a2 );	// 3C
+	HRESULT Dummy13(VOID *pThis, int a1, int a2);	// 30
+	INT Dummy14(VOID *pThis, int a1);	// 34
+	INT Dummy15(VOID *pThis, int a1);	// 38
+	HRESULT Dummy16(VOID *pThis, int a1, int a2);	// 3C
 
-	DWORD GetDataReadyFlags( VOID *pThis );
+	DWORD GetDataReadyFlags(VOID *pThis);
 
-	HRESULT GetLocalChatData( VOID *pThis, DWORD dwUserIndex, PBYTE pbData, PDWORD pdwSize, PDWORD pdwPackets );
-	HRESULT SetPlaybackPriority( VOID *pThis, int a1, int a2, int a3, int a4 );
+	HRESULT GetLocalChatData(VOID *pThis, DWORD dwUserIndex, PBYTE pbData, PDWORD pdwSize, PDWORD pdwPackets);
+	HRESULT SetPlaybackPriority(VOID *pThis, int a1, int a2, int a3, int a4);
 
-	HRESULT Dummy20( VOID *pThis, int a1, int a2, int a3, int a4 );	// 4C
+	HRESULT Dummy20(VOID *pThis, int a1, int a2, int a3, int a4);	// 4C
 
 
 
-	// possible does not exist
-	HRESULT Dummy21( VOID *pThis );	// 54
-	HRESULT Dummy22( VOID *pThis );	// 58
-	HRESULT Dummy23( VOID *pThis );	// 5C
-	HRESULT Dummy24( VOID *pThis );	// 60
+																	// possible does not exist
+	HRESULT Dummy21(VOID *pThis);	// 54
+	HRESULT Dummy22(VOID *pThis);	// 58
+	HRESULT Dummy23(VOID *pThis);	// 5C
+	HRESULT Dummy24(VOID *pThis);	// 60
 
-	HRESULT Dummy25( VOID *pThis );	// 64
-	HRESULT Dummy26( VOID *pThis );	// 68
-	HRESULT Dummy27( VOID *pThis );	// 6C
-	HRESULT Dummy28( VOID *pThis );	// 70
+	HRESULT Dummy25(VOID *pThis);	// 64
+	HRESULT Dummy26(VOID *pThis);	// 68
+	HRESULT Dummy27(VOID *pThis);	// 6C
+	HRESULT Dummy28(VOID *pThis);	// 70
 
-	HRESULT Dummy29( VOID *pThis );	// 74
-	HRESULT Dummy30( VOID *pThis );	// 78
-	HRESULT Dummy31( VOID *pThis );	// 7C
-	HRESULT Dummy32( VOID *pThis );	// 80
+	HRESULT Dummy29(VOID *pThis);	// 74
+	HRESULT Dummy30(VOID *pThis);	// 78
+	HRESULT Dummy31(VOID *pThis);	// 7C
+	HRESULT Dummy32(VOID *pThis);	// 80
 
 
 
@@ -1022,84 +1079,84 @@ typedef IXHV2ENGINE *PIXHV2ENGINE;
 
 
 typedef struct {
-    DWORD dwId;
-    LPWSTR pwszLabel;
-    LPWSTR pwszDescription;
-    LPWSTR pwszUnachieved;
-    DWORD dwImageId;
-    DWORD dwCred;
-    FILETIME ftAchieved;
-    DWORD dwFlags;
+	DWORD dwId;
+	LPWSTR pwszLabel;
+	LPWSTR pwszDescription;
+	LPWSTR pwszUnachieved;
+	DWORD dwImageId;
+	DWORD dwCred;
+	FILETIME ftAchieved;
+	DWORD dwFlags;
 } XACHIEVEMENT_DETAILS, *PXACHIEVEMENT_DETAILS;
- 
+
 
 #define XACHIEVEMENT_DETAILS_ACHIEVED_ONLINE 0x10000
 #define XACHIEVEMENT_DETAILS_ACHIEVED 0x20000
 
 
 
- 
+
 typedef struct _MESSAGEBOX_RESULT {
 	union {
 		DWORD dwButtonPressed;
 		WORD rgwPasscode[4];
 	};
 }	MESSAGEBOX_RESULT, *PMESSAGEBOX_RESULT;
- 
+
 
 typedef enum _XSTORAGE_FACILITY
 {
-    XSTORAGE_FACILITY_GAME_CLIP = 1,
-    XSTORAGE_FACILITY_PER_TITLE = 2,
-    XSTORAGE_FACILITY_PER_USER_TITLE = 3
+	XSTORAGE_FACILITY_GAME_CLIP = 1,
+	XSTORAGE_FACILITY_PER_TITLE = 2,
+	XSTORAGE_FACILITY_PER_USER_TITLE = 3
 } XSTORAGE_FACILITY;
- 
+
 
 typedef struct _XSTORAGE_DOWNLOAD_TO_MEMORY_RESULTS {
-    DWORD dwBytesTotal;
-    XUID xuidOwner;
-    FILETIME ftCreated;
+	DWORD dwBytesTotal;
+	XUID xuidOwner;
+	FILETIME ftCreated;
 } XSTORAGE_DOWNLOAD_TO_MEMORY_RESULTS;
- 
+
 
 typedef struct {
-    DWORD dwNewOffers;
-    DWORD dwTotalOffers;
+	DWORD dwNewOffers;
+	DWORD dwTotalOffers;
 } XOFFERING_CONTENTAVAILABLE_RESULT;
- 
+
 
 
 #define XMARKETPLACE_CONTENT_ID_LEN 20
 
 typedef struct {
-    ULONGLONG qwOfferID;
-    ULONGLONG qwPreviewOfferID;
-    DWORD dwOfferNameLength;
-    WCHAR *wszOfferName;
-    DWORD dwOfferType;
-    BYTE contentId[ XMARKETPLACE_CONTENT_ID_LEN ];
-    BOOL fIsUnrestrictedLicense;
-    DWORD dwLicenseMask;
-    DWORD dwTitleID;
-    DWORD dwContentCategory;
-    DWORD dwTitleNameLength;
-    WCHAR *wszTitleName;
-    BOOL fUserHasPurchased;
-    DWORD dwPackageSize;
-    DWORD dwInstallSize;
-    DWORD dwSellTextLength;
-    WCHAR *wszSellText;
-    DWORD dwAssetID;
-    DWORD dwPurchaseQuantity;
-    DWORD dwPointsPrice;
+	ULONGLONG qwOfferID;
+	ULONGLONG qwPreviewOfferID;
+	DWORD dwOfferNameLength;
+	WCHAR *wszOfferName;
+	DWORD dwOfferType;
+	BYTE contentId[XMARKETPLACE_CONTENT_ID_LEN];
+	BOOL fIsUnrestrictedLicense;
+	DWORD dwLicenseMask;
+	DWORD dwTitleID;
+	DWORD dwContentCategory;
+	DWORD dwTitleNameLength;
+	WCHAR *wszTitleName;
+	BOOL fUserHasPurchased;
+	DWORD dwPackageSize;
+	DWORD dwInstallSize;
+	DWORD dwSellTextLength;
+	WCHAR *wszSellText;
+	DWORD dwAssetID;
+	DWORD dwPurchaseQuantity;
+	DWORD dwPointsPrice;
 } XMARKETPLACE_CONTENTOFFER_INFO, *PXMARKETPLACE_CONTENTOFFER_INFO;
 
 
 typedef struct _STRING_DATA {
-    WORD wStringSize;
-    WCHAR *pszString;
+	WORD wStringSize;
+	WCHAR *pszString;
 } STRING_DATA;
- 
+
 
 #pragma pack( push,1 )
 typedef struct _STRING_VERIFY_RESPONSE {

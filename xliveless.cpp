@@ -5007,10 +5007,344 @@ DWORD WINAPI XLiveSecureLoadLibraryW( LPCWSTR libFileName, DWORD a2, DWORD dwFla
 
 
 // 5230: ??
-DWORD WINAPI XLocatorServerAdvertise( DWORD a1, DWORD a2, DWORD a3, DWORD a4, DWORD a5, DWORD a6, DWORD a7, DWORD a8, DWORD a9, DWORD a10, DWORD a11, DWORD a12, DWORD a13, DWORD a14, DWORD a15 )
+DWORD WINAPI XLocatorServerAdvertise(DWORD dwUserIndex, DWORD dwServerType, XNKID xnkid, XNKEY xnkey, DWORD dwMaxPublicSlots, DWORD dwMaxPrivateSlots, DWORD dwFilledPublicSlots, DWORD dwFilledPrivateSlots, DWORD cProperties, PXUSER_PROPERTY pProperties, DWORD a11)
 {
-  TRACE("XLocatorServerAdvertise  (*** checkme ***)");
+	//TRACE("XLocatorServerAdvertise  (*** checkme ***)");
 
+	std::string server_advertise;
+	std::ostringstream server_data;
+	TRACE("dwUserIndex: %08X", dwUserIndex);
+	server_data << "dwUserIndex=" << dwUserIndex;
+
+	TRACE("dwServerType: %08X", dwServerType);
+	server_data << "&dwServerType=" << dwServerType;
+
+	switch (dwServerType)
+	{
+	case XLOCATOR_SERVERTYPE_PUBLIC:
+		TRACE("dwServerType == XLOCATOR_SERVERTYPE_PUBLIC");
+		break;
+
+	case XLOCATOR_SERVERTYPE_GOLD_ONLY:
+		TRACE("dwServerType == XLOCATOR_SERVERTYPE_GOLD_ONLY");
+		break;
+
+	case XLOCATOR_SERVERTYPE_PEER_HOSTED:
+		TRACE("dwServerType == XLOCATOR_SERVERTYPE_PEER_HOSTED");
+		break;
+
+	case XLOCATOR_SERVERTYPE_PEER_HOSTED_GOLD_ONLY:
+		TRACE("dwServerType == XLOCATOR_SERVERTYPE_PEER_HOSTED_GOLD_ONLY");
+		break;
+
+	}
+
+
+	TRACE("XNKID: %08X", xnkid);
+	TRACE("XNKEY: %08X", xnkey);
+
+	TRACE("dwMaxPublicSlots: %i", dwMaxPublicSlots);
+	TRACE("dwMaxPrivateSlots: %i", dwMaxPrivateSlots);
+	TRACE("dwFilledPublicSlots: %i", dwFilledPublicSlots);
+	TRACE("dwFilledPrivateSlots: %i", dwFilledPrivateSlots);
+	TRACE("cProperties: %i", cProperties);
+
+	server_data << "&dwMaxPublicSlots=" << dwMaxPublicSlots;
+	server_data << "&dwMaxPrivateSlots=" << dwMaxPrivateSlots;
+	server_data << "&dwFilledPublicSlots=" << dwFilledPublicSlots;
+	server_data << "&cProperties=" << cProperties;
+
+	char* string_convert = NULL;
+	int string_len = 0;
+
+	for (unsigned int i = 0; i != cProperties; i++)
+	{
+		bool is_uknown = false;
+
+		switch (pProperties->dwPropertyId)
+		{
+		case XUSER_PROPERTY_GAMETYPE_NAME:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_GAMETYPE_NAME: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+				server_data << "&XUSER_PROPERTY_GAMETYPE_NAME=" << string_convert;
+
+				delete[] string_convert;
+			}
+
+			break;
+
+		case XUSER_PROPERTY_GAMETYPE_NAME_2:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_GAMETYPE_NAME_2: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+
+				server_data << "&XUSER_PROPERTY_GAMETYPE_NAME_2=" << string_convert;
+
+				delete[] string_convert;
+			}
+			break;
+
+		case XUSER_PROPERTY_SERVER_NAME:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_SERVER_NAME: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+
+				server_data << "&XUSER_PROPERTY_SERVER_NAME=" << string_convert;
+
+				delete[] string_convert;
+			}
+
+			break;
+
+		case XUSER_PROPERTY_MAP_ID:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_MAP_ID: %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_MAP_ID=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_MAP_ID_2:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_MAP_ID_2: %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_MAP_ID_2=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_GAMETYPE_ID:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_GAMETYPE_ID: %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_GAMETYPE_ID=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_GAME_STATUS:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_GAME_STATUS: %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_GAME_STATUS=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_SERVER_DESC:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_SERVER_DESC: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+				server_data << "&XUSER_PROPERTY_SERVER_DESC=" << string_convert;
+
+				delete[] string_convert;
+			}
+
+			break;
+
+		case XUSER_PROPERTY_VERSION_1:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_VERSION_1: %i", pProperties->value.nData);
+
+			server_data << "&XUSER_PROPERTY_VERSION=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_VERSION_2:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_VERSION_2: %i", pProperties->value.nData);
+
+			server_data << "&XUSER_PROPERTY_VERSION_2=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_MAP_NAME:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_MAP_NAME: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+				server_data << "&XUSER_PROPERTY_MAP_NAME=" << string_convert;
+
+				delete[] string_convert;
+			}
+			break;
+
+
+		case XUSER_PROPERTY_MAP_NAME_2:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_MAP_NAME_2: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+				server_data << "&XUSER_PROPERTY_MAP_NAME_2=" << string_convert;
+
+				delete[] string_convert;
+			}
+
+			break;
+
+		case XUSER_PROPERTY_MAP_HASH_1:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_MAP_HASH_1: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+				server_data << "&XUSER_PROPERTY_MAP_HASH_1=" << string_convert;
+
+				delete[] string_convert;
+			}
+
+			break;
+
+		case XUSER_PROPERTY_MAP_HASH_2:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_MAP_HASH_2: %ws", pProperties->value.string.pwszData);
+
+			string_len = pProperties->value.string.cbData;
+			if (string_len > 0)
+			{
+				string_convert = new char[string_len];
+				memset(string_convert, 0x00, string_len);
+
+				wcstombs(string_convert, pProperties->value.string.pwszData, string_len);
+
+				server_data << "&XUSER_PROPERTY_MAP_HASH_2=" << string_convert;
+
+				delete[] string_convert;
+			}
+			break;
+
+		case XUSER_PROPERTY_PARTY_PRIVACY:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_PARTY_PRIVACY: %i", pProperties->value.nData);
+
+			server_data << "&XUSER_PROPERTY_PARTY_PRIVACY=" << pProperties->value.nData;
+			break;
+
+
+		case XUSER_PROPERTY_UNKNOWN_INT64:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UNKNOWN_INT64: %I64u", pProperties->value.i64Data);
+			server_data << "&XUSER_PROPERTY_UNKNOWN_INT64=" << pProperties->value.i64Data;
+			break;
+
+		case XUSER_PROPERTY_UNKNOWN_INT32_1:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UNKNOWN_INT32_1 (Default 1): %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_UNKNOWN_INT32_1=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_UNKNOWN_INT32_2:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UNKNOWN_INT32_2 (Default 1): %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_UNKNOWN_INT32_2=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_UNKNOWN_INT32_3:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UNKNOWN_INT32_3 (Default 1): %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_UNKNOWN_INT32_3=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_UNKNOWN_INT32_4:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UNKNOWN_INT32_4 (Default 4): %i ", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_UNKNOWN_INT32_4=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_UNKNOWN_INT32_6:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UNKNOWN_INT32_6 (Default: 0): %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_UNKNOWN_INT32_6=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_UNKNOWN_INT32_7:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UKNOWN_INT32_7 (Default: 32): %i", pProperties->value.nData);
+			server_data << "&XUSER_PROPERTY_UNKNOWN_INT32_7=" << pProperties->value.nData;
+			break;
+
+		case XUSER_PROPERTY_UNKNOWN_UNICODE_1:
+			TRACE("pProperties->dwPropertyId == XUSER_PROPERTY_UNKNOWN_UNICODE_1: %ws", pProperties->value.string.pwszData);
+			break;
+
+		default:
+			TRACE("pProperties->dwPropertyId == %08X", pProperties->dwPropertyId);
+			is_uknown = true;
+			break;
+
+		}
+
+		if (is_uknown)
+		{
+			switch (pProperties->value.type)
+			{
+			case XUSER_DATA_TYPE_BINARY:
+				TRACE("pProperties->value.type == XUSER_DATA_TYPE_BINARY");
+				TRACE("pProperties->value.binary: %08X", pProperties->value.binary);
+				break;
+
+			case XUSER_DATA_TYPE_CONTEXT:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_CONTEXT");
+				TRACE("pProperties.value.context?");
+				break;
+
+			case XUSER_DATA_TYPE_DATETIME:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_DATETIME");
+				break;
+
+			case XUSER_DATA_TYPE_DOUBLE:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_DOUBLE");
+				break;
+
+			case XUSER_DATA_TYPE_FLOAT:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_FLOAT");
+				break;
+
+			case XUSER_DATA_TYPE_INT32:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_INT32");
+				TRACE("pProperties.value.nData: %i", pProperties->value.nData);
+				break;
+
+			case XUSER_DATA_TYPE_INT64:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_INT64");
+				TRACE("pProperties.value.i64Data: %I64u", pProperties->value.i64Data);
+				break;
+
+			case XUSER_DATA_TYPE_NULL:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_NULL");
+				break;
+
+			case XUSER_DATA_TYPE_UNICODE:
+				TRACE("pProperties.value.type == XUSER_DATA_TYPE_UNICODE");
+				TRACE("pProperties.value.string.pwszData: %ws", pProperties->value.string.pwszData);
+				TRACE("pProperties.value.string.cbData: %i", pProperties->value.string.cbData);
+				break;
+			}
+		}
+		pProperties++;
+	}
+	// not done - error now
+
+	server_advertise = server_data.str();
+	//PushServer(server_advertise);
 
 	// not done - error now
 	return S_OK;
@@ -5507,10 +5841,10 @@ HRESULT IXHV2ENGINE::UnregisterLocalTalker( VOID *pThis, DWORD dwUserIndex )
 
 
 
-HRESULT IXHV2ENGINE::Dummy11( VOID *pThis, int a1, int a2, int a3, int a4, int a5 )
+HRESULT IXHV2ENGINE::Dummy11(VOID *pThis, int a1, int a2, int a3, int a4, int a5)
 {
-	TRACE( "IXHV2Engine::Dummy11  (a1 = %X, a2 = %X, a3 = %X, a4 = %X, a5 = %X)",
-		a1, a2, a3, a4, a5 );
+	//TRACE( "IXHV2Engine::Dummy11  (a1 = %X, a2 = %X, a3 = %X, a4 = %X, a5 = %X)",
+	//	a1, a2, a3, a4, a5 );
 
 
 	return ERROR_SUCCESS;
@@ -5518,10 +5852,10 @@ HRESULT IXHV2ENGINE::Dummy11( VOID *pThis, int a1, int a2, int a3, int a4, int a
 
 
 
-HRESULT IXHV2ENGINE::UnregisterRemoteTalker( VOID *pThis, int a1, int a2 )
+HRESULT IXHV2ENGINE::UnregisterRemoteTalker(VOID *pThis, int a1, int a2)
 {
-	TRACE( "IXHV2Engine::UnregisterRemoteTalker  (a1 = %X, a2 = %X)",
-		a1, a2 );
+	//TRACE( "IXHV2Engine::UnregisterRemoteTalker  (a1 = %X, a2 = %X)",
+	//	a1, a2 );
 
 
 	TRACE( "- Voice stopped" );
