@@ -82,6 +82,9 @@ public:
 	float pp_heat_per_charged_shot = 0.25f;
 	float pp_camo_ding = 0.1f;
 	float pp_camo_regrowth_rate = 0.25f;
+	
+	//float pp_damage = 0.f;
+	//only used for boxing
 
 	//Carbine
 	float car_autoaim_angle = 0.0095f;
